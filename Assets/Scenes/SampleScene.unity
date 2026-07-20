@@ -1258,7 +1258,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AgentManager
   ollamaManager: {fileID: 1445283263}
-  apiKey: AQ.Ab8RN6J0Q8xlyyTv1C5DId7uPGxVOZQqip9oiOHAwrZ7D9gdHA
+  apiKey: 
   model: gemini-3.5-flash
   temperature: 0
   jsonFile: {fileID: 4900000, guid: d50951f2aa6507843a1303fc9508c204, type: 3}
