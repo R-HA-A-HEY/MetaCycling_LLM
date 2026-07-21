@@ -55,8 +55,9 @@ public class OllamaClient : MonoBehaviour
     {
         OllamaRequest request = new OllamaRequest
         {
-            model = this.model,
-            messages = new List<Message>()
+            model = model,
+            messages = new List<Message>(),
+            stream = false
         };
         if (string.IsNullOrEmpty(content))
         {
@@ -89,10 +90,11 @@ public class OllamaClient : MonoBehaviour
             if(web.result == UnityWebRequest.Result.Success)
             {
                 string json = web.downloadHandler.text;
-                Message response = JsonUtility.FromJson<Message>(json);
-                if(response.content != null)
+                OllamaResponse response = JsonUtility.FromJson<OllamaResponse>(json);
+                Debug.Log(response.message.content);
+                if(response != null && response.message != null && response.message.content != null)
                 {
-                    return response.content;
+                    return response.message.content;
                 }
                 Debug.LogError($"Ollama didn't response.");
                 return null;

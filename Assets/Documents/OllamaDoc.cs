@@ -15,3 +15,9 @@ public class OllamaRequest
     public List<Message> messages;
     public bool stream = false;
 }
+[System.Serializable]
+public class OllamaResponse
+{
+    public Message message;
+    public bool done;
+}

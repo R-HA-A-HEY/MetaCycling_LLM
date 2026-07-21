@@ -7,9 +7,11 @@ using UnityEngine.Networking;
 public class GeminiClient : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    [SerializeField] private string aPIKey = "";
+    [SerializeField] private APIKey _APIKey;
+    [SerializeField] private string APIKey = "";
+    private string _apikey => !string.IsNullOrEmpty(APIKey) ? APIKey : _APIKey.apikey;
     [SerializeField] private string model  = "gemini-1.5-flash";
-    private string apiUrl => $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={aPIKey}";
+    private string apiUrl => $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={_apikey}";
     public async Task<string> Generate(string content, string prompt)
     {
         GenerateContentRequest request = new  GenerateContentRequest(content, prompt);

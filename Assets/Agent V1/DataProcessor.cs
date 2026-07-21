@@ -55,6 +55,8 @@ public class DataProcessor : MonoBehaviour
         try
         {
             string systemInstruction = string.Format(prompt, analysis);
+            Debug.Log(data);
+            Debug.Log(JsonUtility.ToJson(data));
             string result = await ollamaClient.Generate(JsonUtility.ToJson(data), systemInstruction);
             if (!string.IsNullOrEmpty(result))
             {
