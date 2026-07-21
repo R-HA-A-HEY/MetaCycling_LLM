@@ -75,12 +75,12 @@ public class DataProcessor : MonoBehaviour
             StringSplitOptions.RemoveEmptyEntries
         );
         SampleData result = DataProcess.ReSampled(data, keys);
-        // if (result != null)
-        // {
-        //     Debug.Log(JsonUtility.ToJson(result));
-        //     OnGetData?.Invoke(result);
-        //     isProcessing = false;
-        // }
+        if (result != null)
+        {
+            Debug.Log(JsonUtility.ToJson(result));
+            OnGetData?.Invoke(result);
+            isProcessing = false;
+        }
     }
     
 }
