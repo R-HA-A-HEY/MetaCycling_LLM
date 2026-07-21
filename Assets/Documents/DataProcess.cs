@@ -99,10 +99,10 @@ public static class DataProcess
                 case "bike":
                     point.pHMD = data.pHMD[i];
                     point.rHMD = data.rHMD[i];
-                    point.pRC = data.pRC[i];
-                    point.rRC = data.rRC[i];
-                    point.pLC = data.pLC[i];
-                    point.rLC = data.rLC[i];
+                    point.pRC = data.pLC[i];
+                    point.rRC = data.rLC[i];
+                    point.pLC = data.pRC[i];
+                    point.rLC = data.rRC[i];
                     break;
                 case "dumbbell":
                     point.pHMD = data.pHMD[i];
