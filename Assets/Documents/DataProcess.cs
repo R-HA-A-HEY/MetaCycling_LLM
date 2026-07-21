@@ -57,13 +57,6 @@ public static class DataProcess
     {
         if (data == null ) return null;
         List<SamplePoints> samplePoints = new List<SamplePoints>();
-        List<float> _timeStamp = new List<float>();
-        List<Vector3> _pHMD = new List<Vector3>();
-        List<Vector4> _rHMD = new List<Vector4>();
-        List<Vector3> _pRC = new List<Vector3>();
-        List<Vector4> _rRC = new List<Vector4>();
-        List<Vector3> _pLC = new List<Vector3>();
-        List<Vector4> _rLC = new List<Vector4>();
         for (int i = 0; i < data.timeStamp.Length; i += samplingRate)
         {
             SamplePoints point = new SamplePoints();
@@ -118,7 +111,6 @@ public static class DataProcess
                     point.rLC = data.rLC[i];
                     break;
                 default:
-                    // 預設全部收集
                     point.pHMD = data.pHMD[i];
                     point.rHMD = data.rHMD[i];
                     point.pRC = data.pRC[i];
@@ -126,6 +118,50 @@ public static class DataProcess
                     point.pLC = data.pLC[i];
                     point.rLC = data.rLC[i];
                     break;
+            }
+            samplePoints.Add(point);
+        }
+        SampleData sampleData = new SampleData
+        {
+            userName = data.userName,
+            motionType = data.motionType,
+            samplePoints = samplePoints.ToArray()
+        };
+        return sampleData;
+    }
+    public static SampleData ReSampled(SampleData data, string[] keys)
+    {
+        if (data == null ) return null;
+        List<SamplePoints> samplePoints = new List<SamplePoints>();
+        for (int i = 0; i < data.samplePoints.Length; i ++)
+        {
+            SamplePoints point = new SamplePoints();
+            point.timeStamp = data.samplePoints[i].timeStamp;
+            foreach(string key in keys){
+                string _key = key.Trim();
+                switch (_key)
+                {
+                    case "pHMD":
+                        point.pHMD = data.samplePoints[i].pHMD;
+                        break;
+                    case "rHMD":
+                        point.rHMD = data.samplePoints[i].rHMD;
+                        break;
+                    case "pRC":
+                        point.pRC = data.samplePoints[i].pRC;
+                        break;
+                    case "rRC":
+                        point.rRC = data.samplePoints[i].rRC;
+                        break;
+                    case "pLC":
+                        point.pLC = data.samplePoints[i].pLC;
+                        break;
+                    case "rLC":
+                        point.rLC = data.samplePoints[i].rLC;
+                        break;
+                    default:
+                        break;
+                }
             }
             samplePoints.Add(point);
         }

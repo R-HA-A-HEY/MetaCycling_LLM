@@ -45,7 +45,7 @@ public class QuestionProcessor : MonoBehaviour
         message = inputText;
         Debug.Log("資料已更新為: " +  message);
     }
-    public void Run(string data)
+    public void Run(SampleData data)
     {
         _ = Response(data);
     }
@@ -70,9 +70,8 @@ public class QuestionProcessor : MonoBehaviour
         try
         {
             string prompt = string.Format(analyzePrompt, motionType);
-            Debug.Log(prompt);
-            Debug.Log(message);
             string result = await geminiClient.Generate(message, analyzePrompt);
+            Debug.Log(result);
             if (!string.IsNullOrEmpty(result))
             {
                 OnGetAnalysis?.Invoke(result, data);
@@ -83,16 +82,17 @@ public class QuestionProcessor : MonoBehaviour
             isAnalyzing = false;
         }
     }
-    private async Task Response(string data)
+    private async Task Response(SampleData data)
     {
         if(isResponsing) return;
         Debug.LogWarning("Responsing...");
         isResponsing = true;
         try
         {
-            string prompt = string.Format(responsePrompt, data);
+            string prompt = string.Format(responsePrompt, JsonUtility.ToJson(data));
             string content = $"以下為「使用者」問題：{message}";
             string response = await geminiClient.Generate(content, prompt);
+            Debug.Log(response);
             if (!string.IsNullOrEmpty(response))
             {
                 chat.text = response;

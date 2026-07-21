@@ -12,7 +12,7 @@ public class DataProcessor : MonoBehaviour
     [TextArea(3, 10)]
     [SerializeField] private string prompt = "";
     public bool isProcessing { get; private set; }
-    public event Action<string> OnGetData;
+    public event Action<SampleData> OnGetData;
     public static DataProcessor Instance;
     void Awake()
     {
@@ -34,7 +34,7 @@ public class DataProcessor : MonoBehaviour
     }
     private void Run(string analysis, SampleData data)
     {
-        _ = Process(analysis, data);
+        Process(analysis, data);
     }
     public SampleData DataLoad()
     {
@@ -47,25 +47,40 @@ public class DataProcessor : MonoBehaviour
         var sampled = DataProcess.Sampled(filtered, Mathf.Max(1, sampledRate));
         return sampled;
     }
-    private async Task Process(string analysis, SampleData data)
+    private void Process(string analysis, SampleData data)
     {
         if (isProcessing) return;
-        Debug.LogWarning("Processing...");
         isProcessing = true;
-        try
+        Debug.LogWarning("Processing...");
+        // try
+        // {
+        //     // string systemInstruction = string.Format(prompt, analysis);
+        //     // Debug.Log(systemInstruction);
+        //     string content = $"以下為 JSON 資料內容：{JsonUtility.ToJson(data)}\n以下為使用者要求的資料標籤：{analysis}";
+        //     Debug.Log($"以下為使用者要求：{analysis}");
+        //     Debug.Log(content);
+        //     string result = await ollamaClient.Generate(content, prompt);
+        //     Debug.Log(result);
+        //     if (!string.IsNullOrEmpty(result))
+        //     {
+        //         OnGetData?.Invoke(result);
+        //     }
+        // }
+        // finally
+        // {
+        //     isProcessing = false;
+        // }
+        string[] keys = analysis.Split(
+            new char[] { ',', ' ', '\n', '\r' }, 
+            StringSplitOptions.RemoveEmptyEntries
+        );
+        SampleData result = DataProcess.ReSampled(data, keys);
+        if (result != null)
         {
-            string systemInstruction = string.Format(prompt, analysis);
-            Debug.Log(data);
-            Debug.Log(JsonUtility.ToJson(data));
-            string result = await ollamaClient.Generate(JsonUtility.ToJson(data), systemInstruction);
-            if (!string.IsNullOrEmpty(result))
-            {
-                OnGetData?.Invoke(result);
-            }
-        }
-        finally
-        {
+            Debug.Log(JsonUtility.ToJson(result));
+            OnGetData?.Invoke(result);
             isProcessing = false;
         }
     }
+    
 }
