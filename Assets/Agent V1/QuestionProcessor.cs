@@ -45,7 +45,7 @@ public class QuestionProcessor : MonoBehaviour
         message = inputText;
         Debug.Log("資料已更新為: " +  message);
     }
-    public void Run(SampleData data)
+    public void Run(ReSampleData data)
     {
         _ = Response(data);
     }
@@ -82,7 +82,7 @@ public class QuestionProcessor : MonoBehaviour
             isAnalyzing = false;
         }
     }
-    private async Task Response(SampleData data)
+    private async Task Response(ReSampleData data)
     {
         if(isResponsing) return;
         Debug.LogWarning("Responsing...");

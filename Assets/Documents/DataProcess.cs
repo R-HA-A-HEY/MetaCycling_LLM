@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 
 public static class DataProcess
@@ -107,6 +108,8 @@ public static class DataProcess
                 case "dumbbell":
                     point.pHMD = data.pHMD[i];
                     point.rHMD = data.rHMD[i];
+                    point.pRC = data.pRC[i];
+                    point.rRC = data.rRC[i];
                     point.pLC = data.pLC[i];
                     point.rLC = data.rLC[i];
                     break;
@@ -129,48 +132,49 @@ public static class DataProcess
         };
         return sampleData;
     }
-    public static SampleData ReSampled(SampleData data, string[] keys)
+    public static ReSampleData ReSampled(SampleData data, string[] keys)
     {
         if (data == null ) return null;
-        List<SamplePoints> samplePoints = new List<SamplePoints>();
+        List<ReSamplePoints> reSamplePoints = new List<ReSamplePoints>();
         for (int i = 0; i < data.samplePoints.Length; i ++)
         {
-            SamplePoints point = new SamplePoints();
+            ReSamplePoints point = new ReSamplePoints();
             point.timeStamp = data.samplePoints[i].timeStamp;
+            point.p = new Dictionary<string, SerializableVector3>();
+            point.r = new Dictionary<string, SerializableVector4>();
             foreach(string key in keys){
-                string _key = key.Trim();
-                switch (_key)
+                switch (key)
                 {
                     case "pHMD":
-                        point.pHMD = data.samplePoints[i].pHMD;
+                        point.p["pHMD"] = new SerializableVector3(data.samplePoints[i].pHMD);
                         break;
                     case "rHMD":
-                        point.rHMD = data.samplePoints[i].rHMD;
+                        point.r["rHMD"] = new SerializableVector4(data.samplePoints[i].rHMD);
                         break;
                     case "pRC":
-                        point.pRC = data.samplePoints[i].pRC;
+                        point.p["pRC"]  = new SerializableVector3(data.samplePoints[i].pRC);
                         break;
                     case "rRC":
-                        point.rRC = data.samplePoints[i].rRC;
+                        point.r["rRC"]  = new SerializableVector4(data.samplePoints[i].rRC);
                         break;
                     case "pLC":
-                        point.pLC = data.samplePoints[i].pLC;
+                        point.p["pLC"]  = new SerializableVector3(data.samplePoints[i].pLC);
                         break;
                     case "rLC":
-                        point.rLC = data.samplePoints[i].rLC;
+                        point.r["rLC"] = new SerializableVector4(data.samplePoints[i].rLC);
                         break;
                     default:
                         break;
                 }
             }
-            samplePoints.Add(point);
+            reSamplePoints.Add(point);
         }
-        SampleData sampleData = new SampleData
+        ReSampleData reSampleData = new ReSampleData
         {
             userName = data.userName,
             motionType = data.motionType,
-            samplePoints = samplePoints.ToArray()
+            reSamplePoints = reSamplePoints.ToArray()
         };
-        return sampleData;
+        return reSampleData;
     }
 }

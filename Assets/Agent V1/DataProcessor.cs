@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using UnityEngine;
 
 public class DataProcessor : MonoBehaviour
@@ -12,7 +13,7 @@ public class DataProcessor : MonoBehaviour
     [TextArea(3, 10)]
     [SerializeField] private string prompt = "";
     public bool isProcessing { get; private set; }
-    public event Action<SampleData> OnGetData;
+    public event Action<ReSampleData> OnGetData;
     public static DataProcessor Instance;
     void Awake()
     {
@@ -74,7 +75,14 @@ public class DataProcessor : MonoBehaviour
             new char[] { ',', ' ', '\n', '\r' }, 
             StringSplitOptions.RemoveEmptyEntries
         );
-        SampleData result = DataProcess.ReSampled(data, keys);
+        foreach(string key in keys)
+        {
+            Debug.Log(key);
+        }
+        ReSampleData result = DataProcess.ReSampled(data, keys);
+        Debug.Log(JsonUtility.ToJson(result));
+        Debug.Log(JsonConvert.SerializeObject(result));
+        isProcessing = false;
         if (result != null)
         {
             Debug.Log(JsonUtility.ToJson(result));
