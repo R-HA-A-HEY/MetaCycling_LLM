@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
-
+using System.Linq;
 public static class DataProcess
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -57,123 +57,119 @@ public static class DataProcess
     public static SampleData Sampled(RawData data, int samplingRate)
     {
         if (data == null ) return null;
-        List<SamplePoints> samplePoints = new List<SamplePoints>();
-        for (int i = 0; i < data.timeStamp.Length; i += samplingRate)
-        {
-            SamplePoints point = new SamplePoints();
-            
-            point.timeStamp = data.timeStamp[i];
+        SamplePoints points = new SamplePoints();
+        
+        points.timeStamp = data.timeStamp;
 
-            switch (data.motionType)
-            {
-                case "jump rope":
-                    point.pHMD = data.pHMD[i];
-                    point.rHMD = data.rHMD[i];
-                    point.pRC = data.pRC[i];
-                    point.rRC = data.rRC[i];
-                    point.pLC = data.pLC[i];
-                    point.rLC = data.rLC[i];
-                    break;
-                    
-                case "vertical jump":
-                    point.pHMD = data.pHMD[i];
-                    point.rHMD = data.rHMD[i];
-                    point.pRC = data.pRC[i];
-                    point.rRC = data.rRC[i];
-                    point.pLC = data.pLC[i];
-                    point.rLC = data.rLC[i];
-                    break;
-                case "long jump":
-                    point.pHMD = data.pHMD[i];
-                    point.rHMD = data.rHMD[i];
-                    point.pRC = data.pRC[i];
-                    point.rRC = data.rRC[i];
-                    point.pLC = data.pLC[i];
-                    point.rLC = data.rLC[i];
-                    break;
-                case "row machine":
-                    point.pHMD = data.pHMD[i];
-                    point.rHMD = data.rHMD[i];
-                    point.pLC = data.pLC[i];
-                    point.rLC = data.rLC[i];
-                    break;
-                case "bike":
-                    point.pHMD = data.pHMD[i];
-                    point.rHMD = data.rHMD[i];
-                    point.pRC = data.pLC[i];
-                    point.rRC = data.rLC[i];
-                    point.pLC = data.pRC[i];
-                    point.rLC = data.rRC[i];
-                    break;
-                case "dumbbell":
-                    point.pHMD = data.pHMD[i];
-                    point.rHMD = data.rHMD[i];
-                    point.pRC = data.pRC[i];
-                    point.rRC = data.rRC[i];
-                    point.pLC = data.pLC[i];
-                    point.rLC = data.rLC[i];
-                    break;
-                default:
-                    point.pHMD = data.pHMD[i];
-                    point.rHMD = data.rHMD[i];
-                    point.pRC = data.pRC[i];
-                    point.rRC = data.rRC[i];
-                    point.pLC = data.pLC[i];
-                    point.rLC = data.rLC[i];
-                    break;
-            }
-            samplePoints.Add(point);
+        switch (data.motionType)
+        {
+            case "jump rope":
+                points.pHMD = data.pHMD;
+                points.rHMD = data.rHMD;
+                points.pRC = data.pRC;
+                points.rRC = data.rRC;
+                points.pLC = data.pLC;
+                points.rLC = data.rLC;
+                break;
+                
+            case "vertical jump":
+                points.pHMD = data.pHMD;
+                points.rHMD = data.rHMD;
+                points.pRC = data.pRC;
+                points.rRC = data.rRC;
+                points.pLC = data.pLC;
+                points.rLC = data.rLC;
+                break;
+            case "long jump":
+                points.pHMD = data.pHMD;
+                points.rHMD = data.rHMD;
+                points.pRC = data.pRC;
+                points.rRC = data.rRC;
+                points.pLC = data.pLC;
+                points.rLC = data.rLC;
+                break;
+            case "row machine":
+                points.pHMD = data.pHMD;
+                points.rHMD = data.rHMD;
+                points.pLC = data.pLC;
+                points.rLC = data.rLC;
+                break;
+            case "cycling":
+                points.pHMD = data.pHMD;
+                points.rHMD = data.rHMD;
+                points.pRC = data.pLC;
+                points.rRC = data.rLC;
+                points.pLC = data.pRC;
+                points.rLC = data.rRC;
+                break;
+            case "dumbbell":
+                points.pHMD = data.pHMD;
+                points.rHMD = data.rHMD;
+                points.pRC = data.pRC;
+                points.rRC = data.rRC;
+                points.pLC = data.pLC;
+                points.rLC = data.rLC;
+                break;
+            default:
+                points.pHMD = data.pHMD;
+                points.rHMD = data.rHMD;
+                points.pRC = data.pRC;
+                points.rRC = data.rRC;
+                points.pLC = data.pLC;
+                points.rLC = data.rLC;
+                break;
         }
         SampleData sampleData = new SampleData
         {
             userName = data.userName,
             motionType = data.motionType,
-            samplePoints = samplePoints.ToArray()
+            points = points
         };
         return sampleData;
     }
     public static ReSampleData ReSampled(SampleData data, string[] keys)
     {
         if (data == null ) return null;
-        List<ReSamplePoints> reSamplePoints = new List<ReSamplePoints>();
-        for (int i = 0; i < data.samplePoints.Length; i ++)
-        {
-            ReSamplePoints point = new ReSamplePoints();
-            point.timeStamp = data.samplePoints[i].timeStamp;
-            point.p = new Dictionary<string, SerializableVector3>();
-            point.r = new Dictionary<string, SerializableVector4>();
-            foreach(string key in keys){
-                switch (key)
-                {
-                    case "pHMD":
-                        point.p["pHMD"] = new SerializableVector3(data.samplePoints[i].pHMD);
-                        break;
-                    case "rHMD":
-                        point.r["rHMD"] = new SerializableVector4(data.samplePoints[i].rHMD);
-                        break;
-                    case "pRC":
-                        point.p["pRC"]  = new SerializableVector3(data.samplePoints[i].pRC);
-                        break;
-                    case "rRC":
-                        point.r["rRC"]  = new SerializableVector4(data.samplePoints[i].rRC);
-                        break;
-                    case "pLC":
-                        point.p["pLC"]  = new SerializableVector3(data.samplePoints[i].pLC);
-                        break;
-                    case "rLC":
-                        point.r["rLC"] = new SerializableVector4(data.samplePoints[i].rLC);
-                        break;
-                    default:
-                        break;
-                }
+        ReSamplePoints points = new ReSamplePoints();
+
+        points.timeStamp = data.points.timeStamp;
+        points.position = new Dictionary<string, SerializableVector3[]>();
+        points.rotation = new Dictionary<string, SerializableVector4[]>();
+        foreach(string key in keys){
+            switch (key)
+            {
+                case "pHMD":
+                    points.position["pHMD"] = data.points.pHMD.Select(p => new SerializableVector3(p)).ToArray();
+                    break;
+
+                case "rHMD":
+                    points.rotation["rHMD"] = data.points.rHMD.Select(r => new SerializableVector4(r)).ToArray();
+                    break;
+
+                case "pRC":
+                    points.position["pRC"] = data.points.pRC.Select(p => new SerializableVector3(p)).ToArray();
+                    break;
+
+                case "rRC":
+                    points.rotation["rRC"] = data.points.rRC.Select(r => new SerializableVector4(r)).ToArray();
+                    break;
+
+                case "pLC":
+                    points.position["pLC"] = data.points.pLC.Select(p => new SerializableVector3(p)).ToArray();
+                    break;
+
+                case "rLC":
+                    points.rotation["rLC"] = data.points.rLC.Select(r => new SerializableVector4(r)).ToArray();
+                    break;
+                default:
+                    break;
             }
-            reSamplePoints.Add(point);
         }
         ReSampleData reSampleData = new ReSampleData
         {
             userName = data.userName,
             motionType = data.motionType,
-            reSamplePoints = reSamplePoints.ToArray()
+            points = points
         };
         return reSampleData;
     }

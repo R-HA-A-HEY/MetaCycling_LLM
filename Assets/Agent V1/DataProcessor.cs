@@ -6,14 +6,14 @@ using UnityEngine;
 public class DataProcessor : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    [SerializeField] private OllamaClient ollamaClient;
+    // [SerializeField] private OllamaClient ollamaClient;
     [SerializeField] private QuestionProcessor questionProcessor;
     [SerializeField] private TextAsset jsonFile;
     [SerializeField] private int sampledRate = 5;
-    [TextArea(3, 10)]
-    [SerializeField] private string prompt = "";
+    // [TextArea(3, 10)]
+    // [SerializeField] private string prompt = "";
     public bool isProcessing { get; private set; }
-    public event Action<ReSampleData> OnGetData;
+    public event Action<ReSampleData, string> OnGetData;
     public static DataProcessor Instance;
     void Awake()
     {
@@ -27,16 +27,14 @@ public class DataProcessor : MonoBehaviour
     }
     void OnEnable()
     {
-       questionProcessor.OnGetAnalysis += (r, d) => Run(r, d);
+        questionProcessor.OnGetAnalysis += (r, d, q) => Run(r, d, q);
     }
     void OnDisable()
     {
-        questionProcessor.OnGetAnalysis -= (r, d) => Run(r, d);
+        questionProcessor.OnGetAnalysis -= (r, d, q) => Run(r, d, q);
     }
-    private void Run(string analysis, SampleData data)
-    {
-        Process(analysis, data);
-    }
+
+
     public SampleData DataLoad()
     {
         if(jsonFile == null)
@@ -48,7 +46,13 @@ public class DataProcessor : MonoBehaviour
         var sampled = DataProcess.Sampled(filtered, Mathf.Max(1, sampledRate));
         return sampled;
     }
-    private void Process(string analysis, SampleData data)
+
+
+    private void Run(string analysis, SampleData data, string question)
+    {
+        Process(analysis, data, question);
+    }
+    private void Process(string analysis, SampleData data, string question)
     {
         if (isProcessing) return;
         isProcessing = true;
@@ -75,18 +79,12 @@ public class DataProcessor : MonoBehaviour
             new char[] { ',', ' ', '\n', '\r' }, 
             StringSplitOptions.RemoveEmptyEntries
         );
-        foreach(string key in keys)
-        {
-            Debug.Log(key);
-        }
         ReSampleData result = DataProcess.ReSampled(data, keys);
-        Debug.Log(JsonUtility.ToJson(result));
         Debug.Log(JsonConvert.SerializeObject(result));
         isProcessing = false;
         if (result != null)
         {
-            Debug.Log(JsonUtility.ToJson(result));
-            OnGetData?.Invoke(result);
+            OnGetData?.Invoke(result, question);
             isProcessing = false;
         }
     }

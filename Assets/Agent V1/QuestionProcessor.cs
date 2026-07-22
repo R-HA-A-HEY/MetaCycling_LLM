@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 public class QuestionProcessor : MonoBehaviour
 {
@@ -11,6 +13,7 @@ public class QuestionProcessor : MonoBehaviour
     [SerializeField] private GeminiClient geminiClient;
     [SerializeField] private DataProcessor dataProcessor;
     [SerializeField] private TextMeshProUGUI chat;
+    [SerializeField] private TMP_InputField inputField;
     public string message { get; set; }
     [TextArea(3, 10)]
     [SerializeField] private string analyzePrompt = "";
@@ -20,7 +23,16 @@ public class QuestionProcessor : MonoBehaviour
     public static QuestionProcessor Instance;
     public bool isAnalyzing { get; private set; }
     public bool isResponsing { get; private set; }
-    public event Action<string, SampleData> OnGetAnalysis;
+    // [SerializeField] private TMP_Dropdown languageDropdown;
+    // [SerializeField] private string[] language;
+    [SerializeField] private Language language;
+    public enum Language
+    {
+        English,
+        Chinese
+    }
+    private int languageIndex;
+    public event Action<string, SampleData, string> OnGetAnalysis;
     void Awake()
     {
         if(Instance != null)
@@ -34,33 +46,52 @@ public class QuestionProcessor : MonoBehaviour
     }
     void OnEnable()
     {
-        dataProcessor.OnGetData += (d) => Run(d);
+        dataProcessor.OnGetData += (d, q) => RunResponse(d, q);
     }
     void OnDisable()
     {
-        dataProcessor.OnGetData -= (d) => Run(d);
+        dataProcessor.OnGetData -= (d, q) => RunResponse(d, q);
     }
+
+
+    // void Start()
+    // {
+    //     InitializeDropdown();
+    // }
+    // public void OnLanguageChanged(int index)
+    // {
+    //     Debug.LogWarning($"Current selected language: {languageDropdown.options[languageDropdown.value].text}");
+    // }
+    // private void InitializeDropdown()
+    // {
+    //     languageDropdown.ClearOptions();
+    //     List<string> options = new List<string>(language);
+    //     languageDropdown.AddOptions(options);
+    // }
+
+
     public void OnInputEnd(string inputText)
     {
         message = inputText;
         Debug.Log("資料已更新為: " +  message);
     }
-    public void Run(ReSampleData data)
+    public void Send()
     {
-        _ = Response(data);
+        Ask(message);
     }
-    public void Ask()
+    public void Ask(string question)
     {
         if(!isAnalyzing && !isResponsing && !DataProcessor.Instance.isProcessing)
         {
-            _ = Analyze();
+            inputField.interactable = false;
+            _ = Analyze(question);
         }
         else
         {
             Debug.LogWarning("Agent is responsing...");
         }
     }
-    private async Task Analyze()
+    private async Task Analyze(string question)
     {
         if(isAnalyzing) return;
         isAnalyzing = true;
@@ -70,11 +101,11 @@ public class QuestionProcessor : MonoBehaviour
         try
         {
             string prompt = string.Format(analyzePrompt, motionType);
-            string result = await geminiClient.Generate(message, analyzePrompt);
+            string result = await geminiClient.Generate(question, prompt);
             Debug.Log(result);
             if (!string.IsNullOrEmpty(result))
             {
-                OnGetAnalysis?.Invoke(result, data);
+                OnGetAnalysis?.Invoke(result, data, question);
             }
         }
         finally
@@ -82,25 +113,33 @@ public class QuestionProcessor : MonoBehaviour
             isAnalyzing = false;
         }
     }
-    private async Task Response(ReSampleData data)
+
+
+    private void RunResponse(ReSampleData data, string question)
+    {
+        _ = Response(data, question);
+    }
+    private async Task Response(ReSampleData data, string question)
     {
         if(isResponsing) return;
         Debug.LogWarning("Responsing...");
         isResponsing = true;
+        string motionType = data.motionType;
         try
         {
-            string prompt = string.Format(responsePrompt, JsonUtility.ToJson(data));
-            string content = $"以下為「使用者」問題：{message}";
+            string prompt = string.Format(responsePrompt, motionType, JsonConvert.SerializeObject(data), language.ToString());
+            string content = $"以下為「使用者」問題：{question}";
             string response = await geminiClient.Generate(content, prompt);
             Debug.Log(response);
             if (!string.IsNullOrEmpty(response))
             {
-                chat.text = response;
+                chat.text += "\n\n\n-------------------------------------------------------------------\n\n\n" + response;
             }
         }
         finally
         {
             isResponsing = false;
+            inputField.interactable = true;
         }
     }
 }

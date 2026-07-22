@@ -23,34 +23,34 @@ public class RawData
 [Serializable]
 public class SamplePoints
 {
-    public float timeStamp;
-    public Vector3 pHMD;
-    public Vector4 rHMD;
-    public Vector3 pRC;
-    public Vector4 rRC;
-    public Vector3 pLC;
-    public Vector4 rLC;
+    public float[] timeStamp;
+    public Vector3[] pHMD;
+    public Vector4[] rHMD;
+    public Vector3[] pRC;
+    public Vector4[] rRC;
+    public Vector3[] pLC;
+    public Vector4[] rLC;
 }
 [Serializable]
 public class ReSamplePoints
 {
-    public float timeStamp;
-    public Dictionary<string, SerializableVector3> p;
-    public Dictionary<string, SerializableVector4> r;
+    public float[] timeStamp;
+    public Dictionary<string, SerializableVector3[]> position;
+    public Dictionary<string, SerializableVector4[]> rotation;
 }
 [Serializable]
 public class SampleData
 {
     public string userName;
     public string motionType;
-    public SamplePoints[] samplePoints;
+    public SamplePoints points;
 }
 [Serializable]
 public class ReSampleData
 {
     public string userName;
     public string motionType;
-    public ReSamplePoints[] reSamplePoints;
+    public ReSamplePoints points;
 }
 [Serializable]
 public struct SerializableVector3
